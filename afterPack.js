@@ -9,3 +9,4 @@ exports.default = async function (context) {
   execSync(`xattr -cr "${appPath}"`, { stdio: "inherit" });
   execSync(`codesign --force --deep --sign - "${appPath}"`, { stdio: "inherit" });
 };
+ 
