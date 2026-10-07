@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:; script-src 'self'" />
+  <title>Browser</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="tabbar">
+    <div id="tabs"></div>
+    <button id="newtab" title="New tab">+</button>
+    <span id="toast"></span>
+  </div>
+
+  <div id="toolbar">
+    <button id="back" title="Back">‹</button>
+    <button id="forward" title="Forward">›</button>
+    <button id="reload" title="Reload">↻</button>
+    <input id="url" placeholder="Search or enter address" spellcheck="false" autocomplete="off" />
+    <button id="star" title="Bookmark this page">☆</button>
+    <button id="vpn" title="Extensions &amp; VPN">🧩</button>
+  </div>
+
+  <div id="findbar" hidden>
+    <input id="find-input" placeholder="Find in page" spellcheck="false" autocomplete="off" />
+    <button id="find-prev" title="Previous">↑</button>
+    <button id="find-next" title="Next">↓</button>
+    <button id="find-close" title="Close">✕</button>
+  </div>
+
+  <script src="ui.js"></script>
+</body>
+</html>

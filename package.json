@@ -1,0 +1,33 @@
+{
+  "name": "dontuse-browser",
+  "version": "2.0.0",
+  "description": "A fast Chromium-engine browser with a custom look.",
+  "main": "main.js",
+  "author": "YOUR_NAME",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.example.dontuse.browser",
+    "productName": "Dontuse Browser",
+    "afterPack": "afterPack.js",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Websites you visit may ask to use your microphone.",
+        "NSCameraUsageDescription": "Websites you visit may ask to use your camera."
+      },
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] },
+        { "target": "zip", "arch": ["arm64", "x64"] }
+      ]
+    }
+  }
+}
