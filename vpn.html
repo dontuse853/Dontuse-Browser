@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>VPN &amp; Proxy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px 20px 60px; font: 15px -apple-system, system-ui, sans-serif; background: #202124; color: #e8eaed; }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 26px; margin: 0 0 6px; }
+    p.sub { color: #9aa0a6; margin: 0 0 22px; line-height: 1.5; }
+    .card { background: #2d2e31; border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+    .status { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #777; margin-right: 8px; }
+    .dot.on { background: #3ddc84; }
+    label { display: block; font-size: 13px; color: #bdc1c6; margin: 12px 0 4px; }
+    input, select { width: 100%; height: 36px; border: 0; border-radius: 8px; padding: 0 12px; background: #202124; color: #e8eaed; font-size: 14px; outline: none; }
+    input:focus, select:focus { box-shadow: 0 0 0 2px #8ab4f8; }
+    .row { display: flex; gap: 10px; }
+    .row > div:first-child { flex: 1; }
+    .row > div:last-child { width: 110px; }
+    button { border: 0; border-radius: 18px; padding: 9px 18px; font-weight: 600; font-size: 14px; cursor: pointer; background: #8ab4f8; color: #202124; }
+    button.sec { background: #3c4043; color: #e8eaed; }
+    button:hover { filter: brightness(1.1); }
+    .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    #msg { margin-top: 12px; font-size: 14px; min-height: 20px; }
+    #msg.err { color: #f28b82; } #msg.ok { color: #81c995; }
+    h3 { margin: 22px 0 8px; font-size: 16px; }
+    ul { margin: 0; padding-left: 20px; color: #bdc1c6; line-height: 1.6; font-size: 14px; }
+    code { background: #202124; padding: 2px 6px; border-radius: 5px; font-size: 13px; }
+    a { color: #8ab4f8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>VPN &amp; Proxy</h1>
+    <p class="sub">Routes all of this browser's traffic through a server you choose. Hides your IP from websites.</p>
+
+    <div class="card">
+      <div class="status">
+        <div><span class="dot" id="dot"></span><b id="state">Off</b></div>
+        <button id="toggle">Turn on</button>
+      </div>
+
+      <label for="scheme">Type</label>
+      <select id="scheme">
+        <option value="socks5">SOCKS5</option>
+        <option value="http">HTTP</option>
+        <option value="https">HTTPS</option>
+      </select>
+
+      <div class="row">
+        <div><label for="host">Server</label><input id="host" placeholder="e.g. 127.0.0.1 or proxy.example.com" spellcheck="false" autocomplete="off" /></div>
+        <div><label for="port">Port</label><input id="port" placeholder="1080" inputmode="numeric" autocomplete="off" /></div>
+      </div>
+
+      <div class="row">
+        <div><label for="user">Username (optional)</label><input id="user" autocomplete="off" spellcheck="false" /></div>
+        <div style="width:50%"><label for="pass">Password</label><input id="pass" type="password" autocomplete="off" /></div>
+      </div>
+
+      <div class="actions">
+        <button id="save">Save</button>
+        <button id="test" class="sec">Check my IP</button>
+      </div>
+      <div id="msg"></div>
+    </div>
+
+    <h3>Where do I get a server?</h3>
+    <ul>
+      <li><b>Your own server (best):</b> with any cheap VPS, run <code>ssh -D 1080 user@your-server</code> in Terminal, then use SOCKS5, server <code>127.0.0.1</code>, port <code>1080</code>.</li>
+      <li><b>A VPN provider that includes a proxy:</b> many paid services give you an HTTP or SOCKS5 address and login. Use it here.</li>
+      <li><b>Avoid</b> random free proxy lists. The operator can read or tamper with your traffic.</li>
+    </ul>
+
+    <h3>Good to know</h3>
+    <ul>
+      <li>This is a proxy for this browser only, not a system-wide VPN. Other apps aren't covered.</li>
+      <li>Chromium can't send a username/password to SOCKS5. If your provider needs a login, choose HTTP or HTTPS.</li>
+      <li>If the server goes down while this is on, pages fail to load instead of silently using your real IP.</li>
+      <li>Want system-wide coverage? Install a VPN app like <a href="https://protonvpn.com/free-vpn" target="_blank">Proton VPN Free</a>.</li>
+    </ul>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let cfg = null;
+
+    function show(c) {
+      cfg = c;
+      $("scheme").value = c.scheme || "socks5";
+      $("host").value = c.host || "";
+      $("port").value = c.port || "";
+      $("user").value = c.username || "";
+      $("pass").value = "";
+      $("pass").placeholder = c.hasPassword ? "(saved)" : "";
+      const on = c.enabled && c.host && c.port;
+      $("dot").classList.toggle("on", !!on);
+      $("state").textContent = on ? `On: ${c.host}:${c.port}` : "Off";
+      $("toggle").textContent = on ? "Turn off" : "Turn on";
+    }
+
+    function msg(text, cls) { $("msg").textContent = text; $("msg").className = cls || ""; }
+
+    function form(enabled) {
+      return {
+        enabled,
+        scheme: $("scheme").value,
+        host: $("host").value,
+        port: $("port").value,
+        username: $("user").value,
+        password: $("pass").value,
+      };
+    }
+
+    async function send(enabled) {
+      const r = await internal.proxySet(form(enabled));
+      if (r && !r.ok) return msg(r.error, "err");
+      show(await internal.proxyGet());
+      msg(enabled ? "Saved. VPN/proxy is on." : "Saved.", "ok");
+    }
+
+    $("save").addEventListener("click", () => send(!!(cfg && cfg.enabled)));
+    $("toggle").addEventListener("click", () => send(!(cfg && cfg.enabled && cfg.host)));
+    $("test").addEventListener("click", async () => {
+      msg("Checking...");
+      const r = await internal.proxyTest();
+      r.ok ? msg("Websites currently see your IP as " + r.ip, "ok") : msg("Check failed: " + r.error, "err");
+    });
+
+    internal.proxyGet().then((c) => c && show(c));
+  </script>
+</body>
+</html>
